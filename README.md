@@ -25,15 +25,15 @@ dataframe = load_108()
 
 ## Classifier
 
-Then, we leverage a simple model made of two linear layers with a hidden size $\mathcal{H}$, a dropout layer with probability $p$ and a ReLu activation.  
+Then, we leverage a simple model made of two linear layers with a hidden size __H__, a dropout layer with probability __p__ and a ReLu activation.  
 This model is trained on 60% of the data with 40% allocated to validation. The traning data isn't balanced and is heavily favored towards postives, so the loss function used, cross entropy, is weighted in consequence. However, the validation data is balanced, so that the accuracy measurement on validation may be reliable. No test data is gathered from 108-goodbad.csv, as testing will be done on other data.  
-The optimizer used is AdamW with a learning rate of $\lambda$ and a batch size of $\mathcal{B}$.  
-The training has an early-stopping callback with patience of $500$ and warmup of $100$. Without early stopping, which never happens, it is set to run for $10000$ epochs. This isn't a problem, as the problem's size is small enough to allow for fast training.  
+The optimizer used is AdamW with a learning rate of λ and a batch size of B.  
+The training has an early-stopping callback with patience of 500 and warmup of 100. Without early stopping, which never happens, it is set to run for 10000 epochs. This isn't a problem, as the problem's size is small enough to allow for fast training.  
 Through cross-training, we found the following values to be the best for the hyper-parameters:  
 
 <div align="center">
 
-| $\mathcal{H}$ | $p$ | $\lambda$ | $\mathcal{B}$ |
+| __H__ | __p__ | λ | B |
 | ------------- | --- | --------- | ------------- |
 | 200           | 0.4 | 4e-05     | 256           |
 
@@ -41,9 +41,9 @@ Through cross-training, we found the following values to be the best for the hyp
 
 The cross-training process can be found in classifier-cross.ipynb .
 
-The final validation accuracy is $0.7560975609756099 \approx 0.76$ .
+The final validation accuracy is 0.7560975609756099 The final validation accuracy is 0.7560975609756099 ~ 0.76 .
 
-For reproducibility reasons, the seed used for every step is $42$.
+For reproducibility reasons, the seed used for every step is 42.
 
 <div align="center">
 

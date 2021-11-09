@@ -1,3 +1,3 @@
-from .feature_extractor import FeatureExtractor
+from .feature_extractor import FeatureExtractor as FE
 
-FeatureExtractor = FeatureExtractor
+FeatureExtractor = FE

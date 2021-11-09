@@ -29,11 +29,22 @@ def count_transitive(
             count += cardinal
     return count
 
+def preload_lexique3_freq_table(
+    path : Optional[str] = None,
+) -> dict:
+    """
+    Preloads the frequency table pointed to by (path) if path is given.
+    """
+    if path is None:
+        path = Path(__file__).parent / 'data/lemma_to_freq_table.json'
+    with open(path, encoding='utf-8') as file:
+        lemma_to_freq = json.load(file)
+    return lemma_to_freq
 
 def get_lexique_3_subtitles_freqs(
     cgrams : str | List[str],
     lemmas : str | List[str],
-    path : Optional[str] = None,
+    path_or_freq_table : Optional[str | dict] = None,
 ) -> List[float]:
     """
     Given a list of (lemmas) and their (types), chosen among the universal POS tags, 
@@ -57,11 +68,14 @@ def get_lexique_3_subtitles_freqs(
     
     ## Loading the frequency table
     # Default path is set if None is given
-    if path is None:
+    if path_or_freq_table is None:
         path = Path(__file__).parent / 'data/lemma_to_freq_table.json'
-    # Load the frequency tables
-    with open(path, encoding='utf-8') as file:
-        lemma_to_freq = json.load(file)
+    if isinstance(path_or_freq_table, str):
+        # Load the frequency tables
+        with open(path, encoding='utf-8') as file:
+            lemma_to_freq = json.load(file)
+    else:
+        lemma_to_freq = path_or_freq_table
     
     ## Main loop
     frequencies = []

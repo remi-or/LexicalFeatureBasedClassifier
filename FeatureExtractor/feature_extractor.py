@@ -11,7 +11,7 @@ from spacy.tokens.doc import Doc
 
 from .document_handling import process_document
 from .document_parsing import count_morph_of_type, count_lemma_of_type, count_ner_by_label
-from .grammar_rules import count_transitive, get_lexique_3_subtitles_freqs, count_interrogative_words
+from .grammar_rules import count_transitive, get_lexique_3_subtitles_freqs, count_interrogative_words, preload_lexique3_freq_table
 from .resources import UniversalPOStags, UniversalPOStagsFrench, NerLabels, RestrictedUniversalPOStags
 
 
@@ -37,19 +37,34 @@ class FeatureExtractor:
         self,
         document : Document_like,
         nlp : Optional[spacy.lang.fr.French] = None,
+        freq_table : Optional[dict] = None,
         restricted : bool = True,
+        time_it : bool = False,
         ) -> None:
         """
         Initializes the FeatureExtractor with a (document) of type Document_like.
         """
-        self.document = process_document(document, nlp)
+        if freq_table is None:
+            freq_table = preload_lexique3_freq_table()
+
+        if time_it:
+            t0 = -perf_counter()
+            self.document = process_document(document, nlp)
+            print('Processing:', t0 + perf_counter())
+        else:
+            self.document = process_document(document, nlp)
         self.restricted = restricted
 
         # self.morph[type] = {morph : instances of morph in self.document}
+        if time_it:
+            t0 = -perf_counter()
         self.morphs = {
             type : count_morph_of_type(self.document, type)
             for type in UniversalPOStags
         }
+        if time_it:
+            print('Morphs:', t0 + perf_counter())
+            t0 = -perf_counter()
 
         # self.lemmas[_type] = {lemma : instances of lemma of type _type in self.document}
         self.lemmas = {
@@ -62,18 +77,32 @@ class FeatureExtractor:
                 if not lemma in self.lemmas['ALL']:
                     self.lemmas['ALL'][lemma] = 0
                 self.lemmas['ALL'][lemma] += cardinal
+        if time_it:
+            print('Lemmas:', t0 + perf_counter())
+            t0 = -perf_counter()
         
         # self.freqs[type] = {lemma : frequency of lemma in lexique3's subtitles}
         self.freqs = {
-            type : {
-                lemma : freq for lemma, freq in zip(self.lemmas[type].keys(), get_lexique_3_subtitles_freqs(type, list(self.lemmas[type].keys())))
+            cgram : {
+                lemma : freq 
+                for lemma, freq in zip(
+                    self.lemmas[cgram].keys(),
+                    get_lexique_3_subtitles_freqs(
+                        cgram,
+                        list(self.lemmas[cgram].keys()),
+                        freq_table,
+                    )
+                )
             }
-            for type in UniversalPOStags
+            for cgram in UniversalPOStags
         }
         self.freqs['ALL'] = {
             lemma : sum(self.freqs[type][lemma] for type in UniversalPOStags if lemma in self.freqs[type])
             for lemma in self.lemmas['ALL']
         }
+        if time_it:
+            print('Freqs:', t0 + perf_counter())
+            t0 = -perf_counter()
 
         # self.ners[label] = {text : instances of text in self.document tagged as label}
         self.ners = {
@@ -86,6 +115,9 @@ class FeatureExtractor:
                 if text not in self.ners['ALL']:
                     self.ners['ALL'][text] = 0
                 self.ners['ALL'][text] += instances
+        if time_it:
+            print('NER:', t0 + perf_counter())
+            t0 = -perf_counter()
         
 
     def extract_features(

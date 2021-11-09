@@ -139,13 +139,15 @@ class FeatureDataset(Dataset):
 
     def normalize(
         self,
+        ignore_na : bool = True,
     ) -> None:
         for j in range(self.number_of_features()):
             feature_min = min(self.entries[i][j] for i in range(len(self)))
             feature_max = max(self.entries[i][j] for i in range(len(self)))
             normalization_function = lambda x : (x - feature_min) / feature_max if feature_max != 0 else 1
             for i in range(len(self)):
-                self.entries[i][j] = normalization_function(self.entries[i][j])
+                if not (ignore_na and np.isnan(self.entries[i][j])):
+                    self.entries[i][j] = normalization_function(self.entries[i][j])
         
     def batches(
         self,

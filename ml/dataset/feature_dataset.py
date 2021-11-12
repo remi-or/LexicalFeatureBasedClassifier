@@ -9,6 +9,7 @@ from .base import Dataset
 import torch
 from torch import Tensor
 import numpy as np
+import logging  
 
 
 # endregion
@@ -59,6 +60,9 @@ class FeatureDataset(Dataset):
         entries : List[List[float]],
         labels : List[int],
     ) -> None:
+        if len(entries) * len(labels) == 0:
+            logging.warning(f"Tried to add entries and labels to the dataset {__name__} but one of those is empty: {len(entries)}, {len(labels)}.")
+            return None
         assert len(self.entries[0]) == len(entries[0]), f"The entries present are of size {len(self.entries[0])} whereas the entries added are of size {len(entries[0])}."
         self.entries = self.entries + entries
         self.labels = self.labels + labels

@@ -40,15 +40,19 @@ class Caller:
         patience : int,
         metric_name : str,
         warmup : int = 0,
+        restore_best_weights : bool = True,
     ) -> None:
         self.early_stopping['on'] = True
         self.early_stopping['patience'] = patience
         self.early_stopping['metric_name'] = metric_name
         self.early_stopping['waited'] = patience + warmup
         self.early_stopping['best'] = None
+        self.early_stopping['restore_best_weights'] = restore_best_weights,
 
     def _early_stopping(
         self,
+        model : Model,
+        optimizer : Optimizer,
         logger : Logger,
     ) -> bool:
         # Check if the callback is on
@@ -68,6 +72,8 @@ class Caller:
             if metric.best(best, last) != best:
                 self.early_stopping['best'] = last
                 self.early_stopping['waited'] = max(self.early_stopping['patience'], self.early_stopping['waited'])
+                if self.early_stopping['restore_best_weights']:
+                    self.save(model, optimizer)
             else:
                 self.early_stopping['waited'] -=1
         return self.early_stopping['waited'] == 0
@@ -78,5 +84,13 @@ class Caller:
         optimizer : Optimizer,
         logger : Logger,
     ) -> bool:
-        stopping_early = self._early_stopping(logger)
+        stopping_early = self._early_stopping(model, optimizer, logger)
         return stopping_early
+
+    def restore(
+        self,
+        model : Model,
+        optimizer : Optimizer,
+    ) -> None:
+        if self.early_stopping['on'] and self.early_stopping['restore_best_weights']:
+            self.load(model, optimizer)

@@ -51,3 +51,8 @@ For reproducibility reasons, the seed used for every step is 42.
 ![Cross validation](.images/cross_val.png)
 
 </div>
+
+## Using this repository
+
+If you want to see how you can customize every single step of the training, we can recommend looking at the whole_pipeline.ipynb file. It should be comprehensive enough to allow for understanding every step of the data processing, training and inference.  
+If however you do not have the time or the interest, you can use the two functions pipeline_train and pipeline_predict for training and inference with relative ease. Their docstring should be more than enough to understand them, and they offer a limited number of arguments to tinker with. You can find an example of this in fast_piepline.ipynb .

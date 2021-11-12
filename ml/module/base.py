@@ -106,6 +106,9 @@ class Module(torch.nn.Module):
                     if verbose:
                         print("Fitting stopped for callacks reasons.")
                     break
+        
+        # Eventually restore a model-optimizer couple
+        callbacks.restore(self, optimizer)
 
     def _train(
         self,

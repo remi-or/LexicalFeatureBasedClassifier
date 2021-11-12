@@ -1,8 +1,8 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Dict
 import matplotlib.pyplot as plt
 
-from ..metrics import parse
+from ..metrics import parse, Metric
 from ..outputs import Output
 
 class Logger:
@@ -14,6 +14,8 @@ class Logger:
         - metrics, a dictionnary with metric_name : metric_object
         - metric_descriptions, the list where metrics' description are stored for clean copies
     """
+
+    metrics : Dict[str, Metric]
 
     def __init__(
         self,
